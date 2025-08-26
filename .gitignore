@@ -1,0 +1,22 @@
+# Files to ignore on a Django project
+
+# Byte-compiled / optimized / DLL files
+__pycache__
+*.py[cod]
+*.so
+
+# C extensions
+*.c[px]d
+
+# Django specific items
+*.log
+local_settings.py
+db.sqlite3
+
+# OS specific items
+.DS_store
+.AppleDouble
+.LSOverride
+
+# Virtual Environments
+venv/
