@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from ..models import ProductCategory, MedicineType, Product
+from ..models import ProductCategory, MedicineType, Product, MedicineForm
 
 
 # NOTE! create test for string representation, using symbols, etc.
@@ -235,3 +235,95 @@ class ProductFieldTestCase(TestCase):
             instance.full_clean()
 
         self.assertIn("status", cm.exception.error_dict)
+
+class MedicineFormTestCase(TestCase):
+    """Test cases for medicine form model."""
+
+    # Boilerplate; helper method to avoid duplication of Medicine Form testing values
+    def create_medicine_form(self, **kwargs):
+        """Initializing default values for medicine form model"""
+        defaults = {"name": "sample", "description": "sample description"}
+        defaults.update(kwargs)
+
+        return MedicineForm(**defaults)
+
+    # Valid 'name' field test/s
+    def test_name_valid_within_max_length(self):
+        """Tests whether the 'name' field is valid when its character length is within the max limit."""
+
+        name = "a" * 30
+        instance = self.create_medicine_form(name=name)
+
+        try:
+            instance.full_clean()
+        except ValidationError:
+            self.fail("Name within max length should be valid.")
+
+    # Invalid 'name' field test/s
+    def test_name_invalid_over_max_length(self):
+        """Tests whether the 'name' field will raise a ValidationError when its character length exceeds the max limit."""
+
+        name = "a" * 31
+        instance = self.create_medicine_form(name=name)
+
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+
+        # This checks/verifies that the 'name' field raised the validation error and not any other fields
+        self.assertIn("name", cm.exception.error_dict)
+    
+    def test_name_invalid_empty(self):
+        """Tests whether the 'name' field will raise a ValidationError when an empty string is passed in the input value."""
+
+        instance = self.create_medicine_form(name="")
+
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+
+        self.assertIn("name", cm.exception.error_dict)
+
+    def test_name_invalid_none(self):
+        """Tests whether the 'name' field will raise a ValidationError when 'None' is passed in the input value."""
+
+        instance = self.create_medicine_form(name=None)
+
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+
+        self.assertIn("name", cm.exception.error_dict)
+
+    # Valid 'description' field test/s
+    def test_description_valid_text_limit(self):
+        """Tests whether the 'description' field is valid with large number of  characters."""
+        
+        description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud." * 10
+
+        instance = self.create_medicine_form(description=description)
+
+        try:
+            instance.full_clean()
+        except ValidationError:
+            self.fail("Description field should be valid with large character elements.")
+
+    # Invalid 'description' field test/s
+    def test_description_invalid_empty(self):
+        """Tests whether the 'description' field will raise a ValidationError when empty string is passed in the input value."""
+
+        instance = self.create_medicine_form(description="")
+
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+
+        self.assertIn("description", cm.exception.error_dict)
+
+    def test_description_invalid_none(self):
+        """Tests whether the 'description' field will raise a ValidationError when 'None' is passed in the input value."""
+
+        instance = self.create_medicine_form(description=None)
+
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+
+        self.assertIn("description", cm.exception.error_dict)
+
+        
